@@ -35,7 +35,7 @@ def test_run_tests():
 	test_run = SCTestRun(sclang_path, test_plan)
 	result = test_run.run()
 
-	print result
+	print(result)
 
 	eq_(len(test_plan['tests']), len(result['tests']))
 	for test in result['tests']:

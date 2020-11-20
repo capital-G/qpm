@@ -5,7 +5,7 @@ test_dir = '/c/qpm-test-dir'
 
 def setup():
     try:
-        print 'Creating ' + test_dir
+        print('Creating ' + test_dir)
         os.makedirs(test_dir)
     except OSError as exc:
         if exc.errno == errno.EEXIST and os.path.isdir(test_dir):

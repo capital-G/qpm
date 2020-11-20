@@ -1,6 +1,6 @@
 from cement.utils import test
 
-from test_class import QPMAppTest
+from .test_class import QPMAppTest
 
 class UnitTestCases(test.CementTestCase):
 	app_class = QPMAppTest

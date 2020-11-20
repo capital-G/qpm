@@ -1,5 +1,5 @@
 __author__ = 'fsc'
 
 def test():
-    print "Nose works."
+    print("Nose works.")
     return
