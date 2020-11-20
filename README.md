@@ -6,8 +6,10 @@ Written in Python.
 
 Author: Scott Carver (https://github.com/scztt)
 
-Supported versions: 
-- Python 2.7
+Supported Python versions: 
+- 3.6
+- 3.7
+- 3.8
 
 Features and Usage
 ------------------
@@ -58,7 +60,6 @@ Requirements
 ------------
 
 - semantic-version==2.2.0
-- wsgiref==0.1.2
 - nose==1.3.0
 - gitpython==0.3.2
 - PyDispatcher==2.0.3
