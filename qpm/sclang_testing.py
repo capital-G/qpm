@@ -4,8 +4,8 @@ import time
 import json
 import os.path
 import re
-import sclang_process as process
-from sclang_process import ScLangProcess
+import qpm.sclang_process as process
+from qpm.sclang_process import ScLangProcess
 
 def find_unit_test_quarks(include_gui=False):
 	root = os.path.split(__file__)[0]
@@ -24,7 +24,10 @@ def find_unit_test_quarks(include_gui=False):
 
 	return paths
 
-def find_tests(sclang_path, print_output=False, includes=[], excludes=[]):
+def find_tests(sclang_path, print_output=False, includes=None, excludes=None):
+	includes = includes if includes else []
+	excludes = excludes if excludes else []
+
 	code = process.load_script('list_tests')
 
 	output, error = process.do_execute(sclang_path, code,
@@ -35,11 +38,11 @@ def find_tests(sclang_path, print_output=False, includes=[], excludes=[]):
 	if error:
 		raise Exception(error)
 	else:
-		obj = json.loads(output)
+		obj = json.loads(output) if output else {}
 		return obj
 
 class SCTestRun:
-	def __init__(self, sclang_path, test_plan=None, test_plan_path=None, excludes=[], includes=[], restarts=1, timeout=10*60):
+	def __init__(self, sclang_path, test_plan=None, test_plan_path=None, excludes=None, includes=None, restarts=1, timeout=10*60):
 		self.tests = dict()
 		self.results = dict()
 		self.sclang_path = sclang_path
@@ -51,7 +54,8 @@ class SCTestRun:
 		self.started = False
 		self.duration = -1
 		self.print_stdout = False
-		self.includes = includes
+		self.excludes = excludes if excludes else []
+		self.includes = includes if includes else []
 		self.unit_test_quark_paths = find_unit_test_quarks()
 
 		date = datetime.date.today()
@@ -86,9 +90,9 @@ class SCTestRun:
 			try:
 				results = json.loads(results_string)
 				self.set_results(results)
-			except Exception, e:
+			except Exception as e:
 				# this is okay? might be in the middle of a write or something?
-				print e
+				print(e)
 				pass
 		else:
 			raise Exception("Error reading test run record.")

@@ -66,9 +66,9 @@ class GitHubEndpoint:
 		patterns = [
 			GITHUB_GIT_URL_REGEXP,
 			GITHUB_HTTP_URL_REGEXP
-		];
+		]
 		matches = filter(lambda p: re.match(p, url), patterns)
-		return len(matches) > 0
+		return len(list(matches)) > 0
 
 	def __init__(self, name, url):
 		self.url = url
@@ -142,7 +142,7 @@ class GitHubEndpoint:
 				shutil.move(os.path.join(quark_destination_tmp, folders[0]), quark_destination)
 				shutil.rmtree(quark_destination_tmp)
 		else:
-			raise Exception('Problem with file download: $s (size %s)' % (zip_destination, size))
+			raise Exception('Problem with file download: %s (size %s)' % (zip_destination, size))
 
 		return quark_destination
 

@@ -8,7 +8,6 @@ class SCLang_Base(CementBaseController):
         description = 'SuperCollider test and installation tool'
         stacked_on = 'base'
         stacked_type = 'embedded'
-        description = 'do things with sclang'
 
     @expose(hide=True)
     def default(self):

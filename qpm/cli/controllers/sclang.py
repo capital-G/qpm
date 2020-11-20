@@ -3,7 +3,7 @@ import os.path
 import qpm.sclang_process as process
 import qpm.sclang_testing as testing
 
-from base import *
+from .base import *
 
 class SCLang_Execute(SCLang_AbstractBase):
 	class Meta:
@@ -58,7 +58,7 @@ class SCLang_ListTests(SCLang_AbstractBase):
 			result = testing.find_tests(sclang, self.app.pargs.print_output,
 				self.app.pargs.include, self.app.pargs.exclude)
 			self.app.render(result, 'test_list')
-		except Exception, e:
+		except Exception as e:
 			self.app.render(e, 'error')
 
 class SCLang_RunTest(SCLang_AbstractBase):
@@ -125,7 +125,7 @@ class SCLang_RunTest(SCLang_AbstractBase):
 				else:
 					self.app.close(0)
 
-			except Exception, e:
+			except Exception as e:
 				self.app.render(e, 'error')
 				self.app.close(1)
 

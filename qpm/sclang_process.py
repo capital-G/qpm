@@ -45,9 +45,12 @@ def load_script(name):
 		script = f.read()
 		return script
 
-def do_execute(sclang_path, code, includes=[], excludes=[], print_output=False):
+def do_execute(sclang_path, code, includes=None, excludes=None, print_output=False):
 	if not(sclang_path) or not(os.path.exists(sclang_path)):
 		raise Exception("No sclang binary found in path %s" % sclang_path)
+	# mutable arguments such as [] should not be in the arguments
+	includes = includes if includes else []
+	excludes = excludes if excludes else []
 
 	#app.render({ "message": "Launching sclang at %s" % sclang_path })
 	proc = ScLangProcess(sclang_path, print_output=print_output)
@@ -71,7 +74,7 @@ def do_execute(sclang_path, code, includes=[], excludes=[], print_output=False):
 	if output:
 		return output.group(1), error
 	else:
-		print error
+		print(error)
 		return "", error
 
 def set_non_block(output):
@@ -82,8 +85,9 @@ def safe_read(output):
 	fd = output.fileno()
 	set_fd_non_block(fd)
 	try:
-		return output.read()
-	except Exception, e:
+		text = output.read()
+		return text.decode() if text else ""
+	except Exception as e:
 		time.sleep(0.2)
 		return ""
 
@@ -110,7 +114,7 @@ class ScLangProcess:
 		self.error = ""
 		self.includes = set()
 		self.excludes = set()
-		self.classlib = classlib if (classlib != None) else find_classlibrary(os.path.dirname(os.path.dirname(path)))
+		self.classlib = classlib if (classlib is not None) else find_classlibrary(os.path.dirname(os.path.dirname(path)))
 		if not(self.classlib):
 			raise Exception("Could not find classlib.")
 		else:
@@ -154,7 +158,7 @@ class ScLangProcess:
 
 			if self.print_output:
 				#app.render({ "message": "Running: %s" % ' '.join(cmd) })
-				print "Running: %s" % ' '.join(cmd)
+				print("Running: %s" % ' '.join(cmd))
 
 			global_app.log.debug('Launching with command: %s' % (' '.join(cmd)))
 			self.proc = subprocess.Popen(cmd,
@@ -199,7 +203,7 @@ class ScLangProcess:
 
 		while self.running() and not(re_match) and time.time() < (start_time + timeout):
 			read = safe_read(self.proc.stdout)
-			if self.print_output and read: print read
+			if self.print_output and read: print(read)
 			output += read
 			error += safe_read(self.proc.stderr)
 			re_match = re.search(regex, output, re.DOTALL)
@@ -231,7 +235,7 @@ class ScLangProcess:
 
 	def running(self):
 		if self.proc:
-			return (self.proc.returncode == None)
+			return self.proc.returncode is None
 		else:
 			return False
 
@@ -239,7 +243,7 @@ class ScLangProcess:
 		if self.launched:
 			tries = 3
 			self.return_code = None
-			while tries and self.return_code == None:
+			while tries and self.return_code is None:
 				tries -= 1
 				self.proc.kill()
 				time.sleep(0.1)
@@ -258,7 +262,8 @@ class ScLangProcess:
 			global_app.log.debug('output:\n%s' % self.output)
 			global_app.log.debug('error:\n%s' % self.error)
 			raise Exception("Process not ready - may not have launched correctly")
-		self.proc.stdin.write("%s %s" % (command, chr(0x1b)))
+		self.proc.stdin.write(("%s %s\n" % (command, chr(0x1b))).encode('utf-8'))
+		self.proc.stdin.flush()
 
 
 
@@ -272,7 +277,7 @@ def runFile(sclang_path, file_path, timeout=30):
 	buffer = ""
 	while (time.time() - start_time) < timeout:
 		buffer += proc.stdout.read()
-		if proc.poll() == None:
+		if proc.poll() is None:
 			time.sleep(0.1)
 		else:
 			break
@@ -281,7 +286,7 @@ def runFile(sclang_path, file_path, timeout=30):
 	for str in resultStrings:
 		try:
 			results.append(json.loads(str))
-		except Exception, e:
+		except Exception as e:
 			results.append(e)
 	return results
 
@@ -290,7 +295,7 @@ def convert_quark_infos(sclang_path, quark_infos):
 
 	date = datetime.date.today()
 	fd, infos_file = tempfile.mkstemp('.json', 'quark_infos' + "_".join([str(date.day), str(date.month), str(date.year)]))
-	with file(infos_file, 'w') as f: f.write(infos_string)
+	with open(infos_file, 'w') as f: f.write(infos_string)
 
 	sc_script = r'''
 		~result = ();
@@ -353,9 +358,9 @@ def convert_quark_infos(sclang_path, quark_infos):
 	''' % (infos_file)
 
 	result_string = do_execute(sclang_path, sc_script, True)[0]
-	print type(result_string)
+	print(type(result_string))
 	result_string = result_string.decode('utf8')
-	print result_string
+	print(result_string)
 	result = json.loads(result_string)
 
 	return result

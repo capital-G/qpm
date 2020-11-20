@@ -2,12 +2,11 @@ import os.path
 import itertools
 from multiprocessing.pool import ThreadPool
 
-import qpm.quarks
 import qpm.sclang_process as process
 
 from cement.core import controller
 from qpm.quarks import *
-from cement.core.controller import CementBaseController, expose
+from cement.core.controller import CementBaseController
 
 quark_list_m = '''
     Available quarks from {{repo-count}} repos.
@@ -22,7 +21,6 @@ class Quark_Base(CementBaseController):
         description = 'Quark installation and test tool'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = 'do things with quarks'
 
 class Quark_List(CementBaseController):
     class Meta:
@@ -149,7 +147,7 @@ class Quark_Info(CementBaseController):
 
         requests = list(itertools.chain(*pool.map(do_request_specs, quark_specs)))
         if len(requests) > 20:
-            print 'Requesting info on %s quark version - this may take some time...' % len(requests)
+            print('Requesting info on %s quark version - this may take some time...' % len(requests))
 
         results_list = pool.map(do_request_version, requests)
 

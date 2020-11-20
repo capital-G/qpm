@@ -1,5 +1,5 @@
 import requests
-from github_http import GitHubEndpoint
+from .github_http import GitHubEndpoint
 
 endpoints = [GitHubEndpoint]
 
